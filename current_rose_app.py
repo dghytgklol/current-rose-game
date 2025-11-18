@@ -2,39 +2,49 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="可愛海流玫瑰圖小遊戲 🌸🐬", page_icon="🌊")
+st.set_page_config(page_title="海流玫瑰圖小遊戲 🌸🐬", page_icon="🌊")
 
 st.markdown("""
 # 🌸 海流玫瑰圖小遊戲  
-輸入 **3 組 U、V 分量**，按下下面的按鈕即可產生玫瑰圖！  
+輸入 **3 組 U、V** 以及 **流向（角度，0°=北）**，按下按鈕即可生成玫瑰圖！  
 """)
 
-# 可愛分隔線
 st.markdown("---")
 
 # 使用者輸入區塊
-col1, col2 = st.columns(2)
-with col1:
-    u_values = [st.number_input(f"U{idx+1}", value=0.0) for idx in range(3)]
-with col2:
-    v_values = [st.number_input(f"V{idx+1}", value=0.0) for idx in range(3)]
+st.write("請輸入 3 組數值：")
+cols = st.columns(3)
+u_values = []
+v_values = []
+dir_values = []
 
+for i in range(3):
+    with cols[i]:
+        u = st.number_input(f"U{i+1}", value=0.0)
+        v = st.number_input(f"V{i+1}", value=0.0)
+        d = st.number_input(f"方向{i+1}°", value=0.0, min_value=0.0, max_value=360.0)
+        u_values.append(u)
+        v_values.append(v)
+        dir_values.append(d)
+        
 if st.button("🌸 生成玫瑰圖！"):
+    # 計算流速
     speeds = np.sqrt(np.array(u_values)**2 + np.array(v_values)**2)
-    directions = np.degrees(np.arctan2(u_values, v_values)) % 360
+    angles = np.radians(dir_values)
 
-    # 分成三個方向區塊
-    angles = np.radians(directions)
-
+    # 繪製玫瑰圖
     fig = plt.figure(figsize=(6,6))
     ax = fig.add_subplot(111, polar=True)
-    ax.bar(angles, speeds, width=np.radians(20), edgecolor='black')
+    ax.bar(angles, speeds, width=np.radians(20), edgecolor='black', color='skyblue')
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
-    plt.title("🌊 海流玫瑰圖")
+    ax.set_title("海流玫瑰圖 (帶輸入流向)")  # 不加 emoji
+
     st.pyplot(fig)
 
+    st.markdown("🌊 海流玫瑰圖 (帶輸入流向)")  # Emoji 交給 Streamlit
     st.success("✅ 圖已成功生成！")
 
+
 st.markdown("---")
-st.markdown("由你最可愛的海洋物理講師製作 🐳💙")
+st.markdown("由海洋物理講師江函霖製作 🐳💙")
